@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr" id="htmlRoot">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoyaAI — Enterprise Travel Planning & Risk Management</title>
+  <meta name="description" content="VoyaAI: The enterprise platform combining AI-powered travel planning with institutional duty-of-care compliance. EU-hosted, self-hostable, investment-ready." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    :root {
+      --bg-dark: #0a0e1a;
+      --bg-card: #131a2b;
+      --bg-hover: #1c2438;
+      --primary: #38bdf8;
+      --primary-light: #7dd3fc;
+      --primary-dark: #0284c7;
+      --accent: #f59e0b;
+      --accent-light: #fbbf24;
+      --success: #10b981;
+      --danger: #ef4444;
+      --text-primary: #e8eef7;
+      --text-muted: #94a3b8;
+      --border: #2a3550;
+      --whatsapp: #25d366;
+      --telegram: #229ed9;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    a { color: var(--primary); text-decoration: none; transition: color .3s; }
+    a:hover { color: var(--primary-light); }
+
+    /* ===== STICKY NAV ===== */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 999;
+      background: rgba(10, 14, 26, .92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -.8px;
+      flex-shrink: 0;
+    }
+    .nav-logo .glow { color: var(--primary); text-shadow: 0 0 20px rgba(56, 189, 248, .5); }
+
+    .nav-center {
+      display: flex;
+      gap: 2rem;
+      flex: 1;
+      justify-content: center;
+    }
+    .nav-center a {
+      font-size: .9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      padding-bottom: .2rem;
+      transition: all .3s;
+    }
+    .nav-center a:hover { color: var(--primary); border-color: var(--primary); }
+
+    .nav-actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .btn-small {
+      padding: .5rem 1.2rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: .85rem;
+      cursor: pointer;
+      border: none;
+      transition: all .3s;
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+    }
+    .btn-primary-small {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: var(--bg-dark);
+      box-shadow: 0 8px 24px rgba(56, 189, 248, .25);
+    }
+    .btn-primary-small:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(56, 189, 248, .35);
+    }
+
+    @media (max-width: 900px) {
+      .nav-center { display: none; }
+      nav { justify-content: space-between; }
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 7rem 1.8rem 2rem;
+      background: linear-gradient(135deg, rgba(56, 189, 248, .08), rgba(245, 158, 11, .05)),
+                  radial-gradient(ellipse at 80% 20%, rgba(56, 189, 248, .15), transparent 60%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: 
+        radial-gradient(circle at 20% 50%, rgba(56, 189, 248, .1) 1px, transparent 1px),
+        radial-gradient(circle at 80% 80%, rgba(245, 158, 11, .08) 1px, transparent 1px);
+      background-size: 80px 80px;
+      opacity: .5;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 900px;
+      text-align: center;
+      animation: fadeInUp .8s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(56, 189, 248, .1);
+      border: 1px solid rgba(56, 189, 248, .3);
+      color: var(--primary);
+      padding: .5rem 1.2rem;
+      border-radius: 50px;
+      font-size: .8rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 1.5rem;
+      text-transform: uppercase;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 1.5rem;
+      letter-spacing: -1.5px;
+    }
+
+    .hero h1 .grad {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: var(--text-muted);
+      max-width: 750px;
+      margin: 0 auto 2.8rem;
+      line-height: 1.8;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 1.2rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 2.5rem;
+    }
+
+    .btn-large {
+      padding: 1rem 2.2rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      border: none;
+      transition: all .3s cubic-bezier(.25, .46, .45, .94);
+      display: inline-flex;
+      align-items: center;
+      gap: .6rem;
+    }
+
+    .btn-primary-large {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: var(--bg-dark);
+      box-shadow: 0 16px 40px rgba(56, 189, 248, .3);
+    }
+    .btn-primary-large:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 24px 56px rgba(56, 189, 248, .4);
+    }
+
+    .btn-outline-large {
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+      box-shadow: 0 0 0 0 rgba(56, 189, 248, .2);
+      animation: pulse-border 2s infinite;
+    }
+    .btn-outline-large:hover {
+      background: rgba(56, 189, 248, .1);
+      transform: translateY(-4px);
+    }
+
+    @keyframes pulse-border {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, .2); }
+      50% { box-shadow: 0 0 0 6px rgba(56, 189, 248, 0); }
+    }
+
+    .hero-meta {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      font-size: .9rem;
+      color: var(--text-muted);
+    }
+    .hero-meta span { display: flex; align-items: center; gap: .4rem; }
+
+    .quick-links {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+    .quick-link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .7rem 1.4rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: .9rem;
+      transition: all .3s;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .quick-link-wa { background: var(--whatsapp); }
+    .quick-link-wa:hover { background: #1da851; transform: translateY(-2px); }
+    .quick-link-tg { background: var(--telegram); }
+    .quick-link-tg:hover { background: #1c88ba; transform: translateY(-2px); }
+    .quick-link-em { background: var(--accent); color: var(--bg-dark); }
+    .quick-link-em:hover { background: var(--accent-light); transform: translateY(-2px); }
+
+    /* ===== SECTION ===== */
+    section {
+      padding: 6rem 1.8rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      display: inline-block;
+      color: var(--primary);
+      font-size: .75rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: .8rem;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 800;
+      margin-bottom: 1.2rem;
+      letter-spacing: -1px;
+    }
+
+    .section-desc {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      max-width: 700px;
+      margin-bottom: 3rem;
+      line-height: 1.8;
+    }
+
+    /* ===== GRID CARDS ===== */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .card {
+      background: linear-gradient(135deg, var(--bg-card), var(--bg-hover));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.2rem;
+      transition: all .3s cubic-bezier(.25, .46, .45, .94);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(56, 189, 248, .1), transparent);
+      opacity: 0;
+      transition: opacity .3s;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      border-color: var(--primary);
+      box-shadow: 0 20px 50px rgba(56, 189, 248, .15);
+    }
+    .card:hover::before { opacity: 1; }
+
+    .card-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .card-title { font-size: 1.15rem; font-weight: 700; margin-bottom: .8rem; color: var(--primary); }
+    .card-text { color: var(--text-muted); font-size: .95rem; line-height: 1.7; }
+
+    /* ===== HIGHLIGHT ===== */
+    .highlight-box {
+      background: linear-gradient(135deg, rgba(56, 189, 248, .1), rgba(245, 158, 11, .05));
+      border: 2px solid var(--primary);
+      border-radius: 16px;
+      padding: 2.8rem;
+      margin-top: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .highlight-box::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(56, 189, 248, .15), transparent);
+      border-radius: 50%;
+    }
+
+    .highlight-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .highlight-box h3 {
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+
+    .highlight-box p {
+      color: var(--text-muted);
+      font-size: 1rem;
+      line-height: 1.8;
+      max-width: 700px;
+    }
+
+    /* ===== STATS ===== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 2rem;
+      margin-top: 2.5rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: .5rem;
+    }
+
+    .stat-label {
+      font-size: .9rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* ===== TIMELINE ===== */
+    .timeline {
+      position: relative;
+      margin-top: 3rem;
+    }
+
+    .timeline-item {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+
+    .timeline-marker {
+      width: 12px;
+      height: 12px;
+      background: var(--primary);
+      border-radius: 50%;
+      margin-top: .4rem;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 6px rgba(56, 189, 248, .15);
+      position: relative;
+    }
+
+    .timeline-marker::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 100%;
+      width: 2px;
+      height: 70px;
+      background: var(--border);
+      transform: translateX(-50%);
+    }
+
+    .timeline-item:last-child .timeline-marker::after { display: none; }
+
+    .timeline-content {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.8rem;
+    }
+
+    .timeline-content h4 {
+      font-size: 1.1rem;
+      margin-bottom: .5rem;
+      color: var(--primary);
+    }
+
+    .timeline-content p {
+      color: var(--text-muted);
+      font-size: .95rem;
+      line-height: 1.7;
+    }
+
+    /* ===== PRICING ===== */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+      margin-top: 2.5rem;
+    }
+
+    .price-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      position: relative;
+      transition: all .3s;
+    }
+
+    .price-card.featured {
+      background: linear-gradient(135deg, var(--bg-card), var(--bg-hover));
+      border-color: var(--primary);
+      transform: scale(1.05);
+      box-shadow: 0 20px 50px rgba(56, 189, 248, .2);
+    }
+
+    .price-badge {
+      display: inline-block;
+      background: rgba(56, 189, 248, .15);
+      color: var(--primary);
+      padding: .4rem .9rem;
+      border-radius: 20px;
+      font-size: .75rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .price-card h3 {
+      font-size: 1.4rem;
+      margin-bottom: .5rem;
+    }
+
+    .price-amount {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin: 1.2rem 0;
+    }
+
+    .price-desc {
+      color: var(--text-muted);
+      font-size: .9rem;
+      margin-bottom: 1.8rem;
+      line-height: 1.6;
+    }
+
+    .price-features {
+      list-style: none;
+      margin-bottom: 2rem;
+    }
+
+    .price-features li {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      padding: .6rem 0;
+      color: var(--text-muted);
+      font-size: .9rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .price-features li::before {
+      content: '✓';
+      color: var(--success);
+      font-weight: 800;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    /* ===== CONTACT SECTION ===== */
+    .contact-section {
+      background: linear-gradient(135deg, rgba(56, 189, 248, .08), rgba(245, 158, 11, .04));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 3rem;
+      margin-top: 4rem;
+      text-align: center;
+    }
+
+    .contact-section h2 { font-size: 2rem; margin-bottom: 1rem; }
+    .contact-section p { color: var(--text-muted); margin-bottom: 2rem; font-size: 1.05rem; }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .contact-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all .3s;
+    }
+
+    .contact-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-4px);
+    }
+
+    .contact-icon { font-size: 2rem; margin-bottom: .8rem; }
+    .contact-card a { font-weight: 700; text-decoration: underline; }
+
+    /* ===== FOOTER ===== */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 1.8rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: .85rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* ===== ANIMATIONS ===== */
+    .fade-in {
+      opacity: 0;
+      animation: fadeIn .6s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .slide-right {
+      animation: slideRight .6s ease-out;
+    }
+
+    @keyframes slideRight {
+      from { opacity: 0; transform: translateX(-40px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ===== MODAL ===== */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background: rgba(0, 0, 0, .85);
+      backdrop-filter: blur(8px);
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .modal.active { display: flex; }
+
+    .modal-content {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      max-width: 520px;
+      width: 100%;
+      position: relative;
+      animation: modalSlide .3s ease-out;
+    }
+
+    @keyframes modalSlide {
+      from { opacity: 0; transform: scale(.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.8rem;
+      cursor: pointer;
+    }
+
+    .modal-close:hover { color: var(--primary); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      nav { padding: .8rem 1rem; }
+      .nav-actions { gap: .5rem; }
+      section { padding: 3.5rem 1rem; }
+      .hero { padding: 5rem 1rem 1.5rem; }
+      .price-card.featured { transform: scale(1); }
+      .contact-section { padding: 2rem 1.5rem; }
+      .grid-3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">
+      🧭 Voya<span class="glow">AI</span>
+    </div>
+    <div class="nav-center">
+      <a href="#solution">Solution</a>
+      <a href="#investment">Investment</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#pricing">Pricing</a>
+    </div>
+    <div class="nav-actions">
+      <button class="btn-small btn-primary-small" onclick="scrollTo('contact')">Get Started</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="badge">🚀 Investment-Ready Concept</div>
+      <h1>
+        Travel Planning<br>
+        Meets <span class="grad">Duty of Care</span>
+      </h1>
+      <p class="hero-sub">
+        Enterprise platform combining AI-powered itinerary generation with institutional risk management. 
+        One workflow for travel teams, HR, compliance and travellers.
+      </p>
+      <div class="hero-ctas">
+        <button class="btn-large btn-primary-large" onclick="scrollTo('contact')">
+          📋 Explore Now
+        </button>
+        <button class="btn-large btn-outline-large" onclick="downloadPitch()">
+          📊 Download Pitch
+        </button>
+      </div>
+      <div class="hero-meta">
+        <span>🇪🇺 EU-Hosted</span>
+        <span>🔒 Self-Hostable</span>
+        <span>⚡ Production-Ready</span>
+      </div>
+      <div class="quick-links">
+        <a href="https://wa.me/989017673071" target="_blank" class="quick-link-btn quick-link-wa">💬 WhatsApp</a>
+        <a href="https://t.me/+989017673071" target="_blank" class="quick-link-btn quick-link-tg">✈️ Telegram</a>
+        <a href="mailto:farhadnaghibi56@gmail.com" class="quick-link-btn quick-link-em">📧 Email</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLUTION -->
+  <section id="solution">
+    <div class="section-label">Core Platform</div>
+    <h2 class="section-title">What VoyaAI Delivers</h2>
+    <p class="section-desc">
+      A unified platform that bridges personal travel preparation and organizational duty-of-care compliance.
+    </p>
+
+    <div class="grid-3">
+      <div class="card fade-in">
+        <div class="card-icon">📅</div>
+        <h3 class="card-title">AI Trip Design</h3>
+        <p class="card-text">Day-by-day itineraries with accommodation, cost estimates, local recommendations and packing lists.</p>
+      </div>
+
+      <div class="card fade-in">
+        <div class="card-icon">🛡️</div>
+        <h3 class="card-title">Risk Briefing</h3>
+        <p class="card-text">Real-time destination alerts, emergency contacts, crisis protocols and escalation workflows.</p>
+      </div>
+
+      <div class="card fade-in">
+        <div class="card-icon">📋</div>
+        <h3 class="card-title">Compliance Ready</h3>
+        <p class="card-text">Structured approvals, audit trails, offline dossiers and exportable documentation for teams.</p>
+      </div>
+
+      <div class="card fade-in">
+        <div class="card-icon">🌍</div>
+        <h3 class="card-title">Global Reach</h3>
+        <p class="card-text">11 languages, multi-region support and EU-standard compliance built from the ground up.</p>
+      </div>
+
+      <div class="card fade-in">
+        <div class="card-icon">🔄</div>
+        <h3 class="card-title">Workflow Integration</h3>
+        <p class="card-text">Seamless approvals, manual overrides and team collaboration across travel, HR and compliance.</p>
+      </div>
+
+      <div class="card fade-in">
+        <div class="card-icon">🚀</div>
+        <h3 class="card-title">API-First Design</h3>
+        <p class="card-text">REST API and webhooks for integration with HR systems, expense tools and risk management platforms.</p>
+      </div>
+    </div>
+
+    <div class="highlight-box">
+      <div class="highlight-content">
+        <h3>Differentiation</h3>
+        <p>
+          Most travel platforms focus on booking optimization. Most duty-of-care tools are compliance checklists. 
+          VoyaAI is the first platform that merges operational travel planning with institutional risk management 
+          into a single, self-hostable workflow — turning duty of care from a back-office burden into a strategic advantage.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- INVESTMENT -->
+  <section id="investment">
+    <div class="section-label">Business Model</div>
+    <h2 class="section-title">Revenue Opportunities</h2>
+    <p class="section-desc">Multiple monetization paths designed for B2B enterprise scale.</p>
+
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-badge">RECURRING</div>
+        <h3>Enterprise License</h3>
+        <div class="price-amount">€5k–20k</div>
+        <p class="price-desc">Monthly or annual platform access for travel teams, HR and compliance.</p>
+        <ul class="price-features">
+          <li>Unlimited trips & users</li>
+          <li>Custom workflows</li>
+          <li>Priority support</li>
+          <li>Audit reporting</li>
+        </ul>
+      </div>
+
+      <div class="price-card featured">
+        <div class="price-badge">HIGH MARGIN</div>
+        <h3>White-Label</h3>
+        <div class="price-amount">€15k–60k</div>
+        <p class="price-desc">Tailored deployment with custom branding and integrations for enterprise clients.</p>
+        <ul class="price-features">
+          <li>Full white-label setup</li>
+          <li>API integration layer</li>
+          <li>Dedicated support</li>
+          <li>Compliance documentation</li>
+        </ul>
+      </div>
+
+      <div class="price-card">
+        <div class="price-badge">TRANSACTION</div>
+        <h3>Premium Add-Ons</h3>
+        <div class="price-amount">€49–299</div>
+        <p class="price-desc">Per-trip services: premium concierge, emergency support, advanced risk analysis.</p>
+        <ul class="price-features">
+          <li>Concierge coordination</li>
+          <li>Crisis support (24/7)</li>
+          <li>Deep risk analysis</li>
+          <li>Dossier archiving</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="stats-grid" style="margin-top: 4rem;">
+      <div class="stat-card">
+        <div class="stat-value">3×</div>
+        <div class="stat-label">Market Size (TAM)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">€180k</div>
+        <div class="stat-label">Setup Range</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">12–18mo</div>
+        <div class="stat-label">Path to Profitability</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">85%+</div>
+        <div class="stat-label">Gross Margin (SaaS)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROADMAP -->
+  <section id="roadmap">
+    <div class="section-label">Execution Timeline</div>
+    <h2 class="section-title">18-Month Roadmap</h2>
+    <p class="section-desc">From prototype to market-ready platform with early customer wins.</p>
+
+    <div class="timeline">
+      <div class="timeline-item slide-right">
+        <div class="timeline-marker"></div>
+        <div class="timeline-content">
+          <h4>Phase 1: Foundation (Q1–Q2 2026)</h4>
+          <p>Core platform build, EU security certifications, first pilot customer onboarding and initial API framework.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item slide-right" style="animation-delay: .1s;">
+        <div class="timeline-marker"></div>
+        <div class="timeline-content">
+          <h4>Phase 2: Beta Launch (Q3–Q4 2026)</h4>
+          <p>Closed beta with 3–5 enterprise partners, white-label proof-of-concept and compliance audit readiness.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item slide-right" style="animation-delay: .2s;">
+        <div class="timeline-marker"></div>
+        <div class="timeline-content">
+          <h4>Phase 3: Market Entry (Q1 2027)</h4>
+          <p>Public launch, 2–3 signed enterprise deals, sales acceleration and partner channel development.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item slide-right" style="animation-delay: .3s;">
+        <div class="timeline-marker"></div>
+        <div class="timeline-content">
+          <h4>Phase 4: Scale (Q2–Q4 2027)</h4>
+          <p>Target €50k–100k MRR, Series A positioning and vertical market expansion.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing">
+    <div class="section-label">Investment Thesis</div>
+    <h2 class="section-title">Why VoyaAI Wins</h2>
+    <p class="section-desc">A unique position in a fragmented but rapidly consolidating market.</p>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-icon">🎯</div>
+        <h3 class="card-title">Massive TAM</h3>
+        <p class="card-text">Global enterprises + NGOs + government agencies. Millions of annual business trips need both planning and risk management.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">🏆</div>
+        <h3 class="card-title">Defensible IP</h3>
+        <p class="card-text">Proprietary risk assessment engine, workflow customization framework and compliance automation are hard to replicate.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">💰</div>
+        <h3 class="card-title">High Margins</h3>
+        <p class="card-text">SaaS model with 85%+ gross margins. Low customer acquisition cost through enterprise sales and channel partnerships.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">🚀</div>
+        <h3 class="card-title">Fast Path to PMF</h3>
+        <p class="card-text">MVP already resonates with early prospects. Pre-existing demand in HR tech and risk management sectors.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">🌐</div>
+        <h3 class="card-title">Global Expansion</h3>
+        <p class="card-text">11-language support and EU-standard architecture enable easy entry into international markets.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">🤝</div>
+        <h3 class="card-title">Strategic Partnerships</h3>
+        <p class="card-text">Integration pathways with HR platforms, expense management tools and corporate travel agencies.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="contact-section">
+    <h2>Let's Talk</h2>
+    <p>Discuss investment, partnership or customer pilot opportunities.</p>
+
+    <div class="contact-grid">
+      <div class="contact-card">
+        <div class="contact-icon">💬</div>
+        <h4>WhatsApp</h4>
+        <a href="https://wa.me/989017673071" target="_blank">+98 901 767 3071</a>
+      </div>
+      <div class="contact-card">
+        <div class="contact-icon">✈️</div>
+        <h4>Telegram</h4>
+        <a href="https://t.me/+989017673071" target="_blank">@voyaai</a>
+      </div>
+      <div class="contact-card">
+        <div class="contact-icon">📧</div>
+        <h4>Email</h4>
+        <a href="mailto:farhadnaghibi56@gmail.com">hello@voya.ai</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>VoyaAI — AI-Powered Travel Planning & Duty of Care</p>
+    <p>Frankfurt am Main · EU-Hosted · Self-Hostable · Investment-Ready</p>
+    <p style="margin-top: 1rem; opacity: .7;">© 2026 VoyaAI. All rights reserved.</p>
+  </footer>
+
+  <!-- MODAL -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal()">×</button>
+      <h3 style="margin-bottom: 1rem; font-size: 1.3rem;">Download VoyaAI Pitch Deck</h3>
+      <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+        Get the full investor overview including market analysis, financials and roadmap.
+      </p>
+      <button class="btn-large btn-primary-large" onclick="generatePdf()" style="width: 100%;">
+        📥 Generate PDF
+      </button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    // Smooth scroll
+    function scrollTo(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    // Modal
+    function downloadPitch() {
+      document.getElementById('modal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.remove('active');
+    }
+
+    // PDF Generation
+    function generatePdf() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 15;
+      let yPos = margin;
+
+      // Background
+      doc.setFillColor(10, 14, 26);
+      doc.rect(0, 0, pageWidth, pageHeight, 'F');
+
+      // Title
+      doc.setTextColor(56, 189, 248);
+      doc.setFontSize(28);
+      doc.setFont('helvetica', 'bold');
+      doc.text('VoyaAI', margin, yPos);
+      yPos += 12;
+
+      doc.setTextColor(148, 163, 184);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal');
+      doc.text('AI Travel Planning & Duty of Care', margin, yPos);
+      doc.text('Investment Pitch Deck — September 2026', margin, yPos + 6);
+      yPos += 20;
+
+      // Section 1
+      doc.setTextColor(56, 189, 248);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('The Problem', margin, yPos);
+      yPos += 8;
+
+      doc.setTextColor(232, 238, 247);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      const problem = [
+        'Enterprise travellers need itineraries, budgets and local guidance.',
+        'Organisations must manage risk, compliance and duty-of-care.',
+        'No single platform connects these workflows efficiently.',
+        'Market is fragmented: booking tools + risk platforms exist separately.'
+      ];
+      problem.forEach(line => {
+        doc.text('• ' + line, margin + 5, yPos, { maxWidth: pageWidth - 2 * margin - 5 });
+        yPos += 7;
+      });
+
+      yPos += 5;
+
+      // Section 2
+      doc.setTextColor(56, 189, 248);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('The Solution', margin, yPos);
+      yPos += 8;
+
+      doc.setTextColor(232, 238, 247);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      const solution = [
+        'VoyaAI: One platform for travel planning + duty-of-care.',
+        'AI-generated itineraries with accommodation, costs, packing lists.',
+        'Risk briefings, emergency protocols, offline dossiers for organisations.',
+        'EU-hosted, self-hostable, 11 languages, production-ready.'
+      ];
+      solution.forEach(line => {
+        doc.text('• ' + line, margin + 5, yPos, { maxWidth: pageWidth - 2 * margin - 5 });
+        yPos += 7;
+      });
+
+      yPos += 5;
+
+      // Section 3
+      doc.setTextColor(56, 189, 248);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Business Model', margin, yPos);
+      yPos += 8;
+
+      doc.setTextColor(232, 238, 247);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      const revenue = [
+        '€5k–20k/month: Enterprise licensing',
+        '€15k–60k: White-label deployments',
+        '€49–299/trip: Premium add-ons (concierge, crisis support)',
+        'Target: €50k–100k MRR by Q4 2027'
+      ];
+      revenue.forEach(line => {
+        doc.text('• ' + line, margin + 5, yPos, { maxWidth: pageWidth - 2 * margin - 5 });
+        yPos += 7;
+      });
+
+      yPos += 5;
+
+      // Footer
+      doc.setTextColor(245, 158, 11);
+      doc.setFontSize(9);
+      doc.text('Frankfurt am Main · Investment-Ready · Contact: farhadnaghibi56@gmail.com', margin, pageHeight - 10);
+
+      doc.save('VoyaAI-Pitch-Deck.pdf');
+      closeModal();
+    }
+
+    // Observe cards for fade-in
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, index) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            entry.target.classList.add('fade-in');
+          }, index * 100);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.card').forEach(card => observer.observe(card));
+
+    // Close modal on background click
+    document.getElementById('modal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('modal')) {
+        closeModal();
+      }
+    });
+  </script>
+</body>
+</html>
