@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr" id="htmlRoot">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoyaAI — AI Travel Planning & Duty of Care</title>
+  <meta name="description" content="VoyaAI: AI-powered day-by-day travel planning and organisational duty-of-care software. EU-hosted, self-hostable." />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --surface: #131a2b;
+      --surface2: #1c2438;
+      --primary: #38bdf8;
+      --primary-dark: #0284c7;
+      --accent: #f59e0b;
+      --text: #e8eef7;
+      --muted: #94a3b8;
+      --border: #2a3550;
+      --success: #10b981;
+      --danger: #ef4444;
+      --whatsapp: #25d366;
+      --telegram: #229ed9;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', 'Segoe UI', Tahoma, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      overflow-x: hidden;
+      transition: .3s;
+    }
+    body[dir="rtl"] { font-family: 'Vazirmatn', 'Tahoma', sans-serif; }
+    a { color: var(--primary); text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    button, input, textarea, select { font: inherit; }
+
+    nav {
+      position: fixed;
+      inset: 0 0 auto 0;
+      z-index: 1000;
+      background: rgba(10, 14, 26, .9);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      padding: .85rem 1.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -.6px;
+      flex-shrink: 0;
+    }
+    .nav-logo svg { width: 32px; height: 32px; }
+    .nav-logo span { color: var(--primary); }
+    .nav-links { display: flex; gap: 1.15rem; font-size: .86rem; align-items: center; }
+    .nav-links a {
+      color: var(--muted);
+      transition: .25s;
+      font-weight: 500;
+    }
+    .nav-links a:hover { color: var(--primary); }
+    .nav-cta {
+      background: var(--primary);
+      color: #0a0e1a !important;
+      padding: .45rem 1.1rem;
+      border-radius: 50px;
+      font-weight: 700;
+    }
+    .nav-cta:hover { background: #7dd3fc; color: #0a0e1a !important; }
+    .nav-right { display: flex; gap: .55rem; align-items: center; flex-shrink: 0; }
+
+    .lang-select {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: .4rem .7rem;
+      border-radius: 50px;
+      font-size: .8rem;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+    }
+    .lang-select:focus { border-color: var(--primary); }
+
+    .pdf-btn {
+      background: var(--accent);
+      color: #0a0e1a;
+      border: none;
+      padding: .45rem .95rem;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: .8rem;
+      cursor: pointer;
+      transition: .25s;
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+    }
+    .pdf-btn:hover { background: #d97706; transform: translateY(-1px); }
+
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 7.5rem 1.8rem 3.5rem;
+      background: radial-gradient(ellipse at 18% 22%, rgba(56, 189, 248, .14), transparent 52%), radial-gradient(ellipse at 82% 78%, rgba(245, 158, 11, .1), transparent 52%), var(--bg);
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(56, 189, 248, .035) 1px, transparent 1px), linear-gradient(90deg, rgba(56, 189, 248, .035) 1px, transparent 1px);
+      background-size: 56px 56px;
+      mask-image: radial-gradient(ellipse at center, black, transparent 72%);
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 880px; }
+    .badge {
+      display: inline-block;
+      background: rgba(56, 189, 248, .1);
+      border: 1px solid rgba(56, 189, 248, .28);
+      color: var(--primary);
+      padding: .38rem .95rem;
+      border-radius: 50px;
+      font-size: .8rem;
+      font-weight: 600;
+      margin-bottom: 1.4rem;
+    }
+    .hero h1 {
+      font-size: clamp(1.9rem, 4.8vw, 3.3rem);
+      font-weight: 800;
+      line-height: 1.18;
+      margin-bottom: 1.35rem;
+      letter-spacing: -1px;
+    }
+    .hero h1 .grad {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: clamp(.98rem, 1.9vw, 1.15rem);
+      color: var(--muted);
+      max-width: 720px;
+      margin: 0 auto 2.2rem;
+    }
+    .hero-buttons { display: flex; gap: .9rem; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      padding: .85rem 1.85rem;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: .98rem;
+      cursor: pointer;
+      border: none;
+      transition: .25s;
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+    }
+    .btn-primary { background: var(--primary); color: #0a0e1a; }
+    .btn-primary:hover { background: #7dd3fc; transform: translateY(-2px); box-shadow: 0 10px 28px rgba(56, 189, 248, .35); }
+    .btn-outline { background: transparent; color: var(--text); border: 1.5px solid var(--border); }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+
+    .hero-meta {
+      margin-top: 2.6rem;
+      font-size: .82rem;
+      color: var(--muted);
+      display: flex;
+      gap: 1.8rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .quick-contact {
+      display: flex;
+      gap: .9rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1.8rem;
+    }
+    .quick-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      padding: .65rem 1.25rem;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: .86rem;
+      transition: .25s;
+      color: white;
+    }
+    .quick-wa { background: var(--whatsapp); }
+    .quick-wa:hover { background: #1da851; transform: translateY(-2px); }
+    .quick-tg { background: var(--telegram); }
+    .quick-tg:hover { background: #1c88ba; transform: translateY(-2px); }
+    .quick-em { background: var(--accent); color: #0a0e1a; }
+    .quick-em:hover { background: #d97706; transform: translateY(-2px); }
+
+    section { padding: 4.5rem 1.8rem; max-width: 1160px; margin: 0 auto; }
+    .section-tag {
+      color: var(--primary);
+      font-size: .8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.8px;
+      margin-bottom: .7rem;
+    }
+    .section-title {
+      font-size: clamp(1.55rem, 3.3vw, 2.25rem);
+      font-weight: 800;
+      margin-bottom: .9rem;
+      letter-spacing: -.5px;
+    }
+    .section-sub {
+      color: var(--muted);
+      font-size: 1.02rem;
+      max-width: 680px;
+      margin-bottom: 2.6rem;
+    }
+
+    .three-sentences {
+      background: linear-gradient(135deg, var(--surface), var(--surface2));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 2.6rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .three-sentences::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      inset-inline-end: 0;
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, rgba(56, 189, 248, .13), transparent 70%);
+    }
+    .three-sentences p {
+      font-size: 1.05rem;
+      line-height: 1.85;
+      position: relative;
+      z-index: 1;
+    }
+    .three-sentences p strong { color: var(--primary); }
+
+    .why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.7rem; margin-top: 1.8rem; }
+    .why-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.7rem;
+      transition: .25s;
+    }
+    .why-card:hover { border-color: var(--primary); transform: translateY(-3px); }
+    .why-card .icon { font-size: 1.9rem; margin-bottom: .85rem; }
+    .why-card h3 { font-size: 1.08rem; margin-bottom: .65rem; color: var(--primary); }
+    .why-card p { color: var(--muted); font-size: .9rem; }
+
+    .status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px,1fr)); gap: 1.1rem; }
+    .status-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 1.35rem;
+      position: relative;
+    }
+    .status-item .status-label {
+      font-size: .74rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: .45rem;
+      font-weight: 600;
+    }
+    .status-item .status-value { font-size: .95rem; font-weight: 600; }
+    .status-dot {
+      position: absolute;
+      top: 1.35rem;
+      inset-inline-end: 1.35rem;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+    .dot-green { background: var(--success); box-shadow: 0 0 10px var(--success); }
+    .dot-amber { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+
+    .revenue-list { display: grid; gap: .9rem; margin-top: 1.3rem; }
+    .revenue-item {
+      display: flex;
+      align-items: center;
+      gap: 1.3rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 1.35rem;
+      transition: .25s;
+    }
+    .revenue-item:hover { border-color: var(--primary); }
+    .revenue-num {
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 11px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: #0a0e1a;
+    }
+    .revenue-content h3 { font-size: 1rem; margin-bottom: .25rem; }
+    .revenue-content p { color: var(--muted); font-size: .85rem; }
+    .revenue-price {
+      margin-inline-start: auto;
+      font-weight: 700;
+      color: var(--accent);
+      font-size: 1rem;
+      white-space: nowrap;
+    }
+
+    .table-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid var(--border); }
+    .numbers-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--surface);
+      min-width: 500px;
+    }
+    .numbers-table th {
+      background: var(--surface2);
+      padding: 1.05rem;
+      text-align: start;
+      font-size: .78rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .numbers-table td {
+      padding: 1.05rem;
+      border-top: 1px solid var(--border);
+      font-size: .9rem;
+    }
+    .numbers-table tr:hover td { background: rgba(56, 189, 248, .03); }
+    .numbers-table .highlight { color: var(--success); font-weight: 700; }
+    .numbers-table .loss { color: var(--danger); font-weight: 700; }
+    .numbers-table .row-label { font-weight: 600; }
+
+    .footnote {
+      font-size: .8rem;
+      color: var(--muted);
+      margin-top: 1.3rem;
+      padding: .9rem;
+      background: var(--surface);
+      border-radius: 9px;
+      border-inline-start: 3px solid var(--accent);
+    }
+
+    .capital-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr;
+      gap: 2.5rem;
+      align-items: center;
+      margin-top: 1.8rem;
+    }
+    .capital-total {
+      text-align: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 2.2rem;
+    }
+    .capital-total .amount {
+      font-size: 2.35rem;
+      font-weight: 800;
+      color: var(--primary);
+      letter-spacing: -1px;
+    }
+    .capital-total .label { color: var(--muted); font-size: .85rem; margin-top: .4rem; }
+
+    .capital-bars { display: grid; gap: 1.05rem; }
+    .cap-bar .cap-head {
+      display: flex;
+      justify-content: space-between;
+      font-size: .88rem;
+      margin-bottom: .4rem;
+    }
+    .cap-bar .cap-head .pct { color: var(--accent); font-weight: 700; }
+    .cap-track { height: 9px; background: var(--surface2); border-radius: 50px; overflow: hidden; }
+    .cap-fill {
+      height: 100%;
+      border-radius: 50px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+    }
+
+    .frankfurt {
+      background: linear-gradient(135deg, rgba(56, 189, 248, .07), rgba(245, 158, 11, .04));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 2.6rem;
+      margin-top: 1.8rem;
+    }
+    .frankfurt-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px,1fr));
+      gap: 1.3rem;
+      margin-top: 1.7rem;
+    }
+    .frankfurt-item {
+      text-align: center;
+      padding: 1.3rem;
+      background: rgba(10, 14, 26, .45);
+      border-radius: 12px;
+    }
+    .frankfurt-item .icon { font-size: 1.75rem; margin-bottom: .7rem; }
+    .frankfurt-item h4 { font-size: .9rem; color: var(--primary); margin-bottom: .35rem; }
+    .frankfurt-item p { font-size: .8rem; color: var(--muted); }
+
+    .risks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
+      gap: 1.1rem;
+      margin-top: 1.7rem;
+    }
+    .risk-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      padding: 1.35rem;
+      border-top: 3px solid var(--danger);
+    }
+    .risk-card h4 { font-size: .95rem; margin-bottom: .5rem; color: var(--danger); }
+    .risk-card p { font-size: .84rem; color: var(--muted); }
+
+    .abgrenzung {
+      background: linear-gradient(135deg, rgba(16, 185, 129, .07), rgba(56, 189, 248, .04));
+      border: 1px solid rgba(16, 185, 129, .28);
+      border-radius: 18px;
+      padding: 2.2rem;
+      margin-top: 1.8rem;
+      display: flex;
+      gap: 1.3rem;
+      align-items: flex-start;
+    }
+    .abgrenzung .shield { font-size: 2.2rem; flex-shrink: 0; }
+    .abgrenzung h3 { color: var(--success); margin-bottom: .7rem; font-size: 1.08rem; }
+    .abgrenzung p { color: var(--muted); font-size: .9rem; }
+
+    .contact-wrapper {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.8rem;
+      margin-top: 1.7rem;
+    }
+    .contact-card {
+      background: linear-gradient(135deg, var(--surface), var(--surface2));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 2.2rem;
+    }
+    .contact-card h3 { font-size: 1.2rem; margin-bottom: 1.3rem; }
+    .form-group { margin-bottom: 1.05rem; }
+    .form-group label {
+      display: block;
+      font-size: .82rem;
+      color: var(--muted);
+      margin-bottom: .4rem;
+      font-weight: 600;
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: .8rem .95rem;
+      border-radius: 11px;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      font-size: .92rem;
+      transition: .25s;
+      outline: none;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, .13);
+    }
+    .form-group textarea { resize: vertical; min-height: 100px; }
+    .form-group .error {
+      color: var(--danger);
+      font-size: .78rem;
+      margin-top: .25rem;
+      display: none;
+    }
+    .form-group.has-error input,
+    .form-group.has-error textarea { border-color: var(--danger); }
+    .form-group.has-error .error { display: block; }
+
+    .form-status {
+      padding: .9rem;
+      border-radius: 11px;
+      margin-top: .9rem;
+      font-size: .88rem;
+      display: none;
+    }
+    .form-status.success {
+      background: rgba(16, 185, 129, .13);
+      color: var(--success);
+      border: 1px solid var(--success);
+      display: block;
+    }
+    .form-status.error {
+      background: rgba(239, 68, 68, .13);
+      color: var(--danger);
+      border: 1px solid var(--danger);
+      display: block;
+    }
+
+    .contact-info-list { display: grid; gap: .9rem; }
+    .contact-info-item {
+      display: flex;
+      align-items: center;
+      gap: .9rem;
+      padding: 1.05rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      transition: .25s;
+    }
+    .contact-info-item:hover { border-color: var(--primary); transform: translateX(4px); }
+    body[dir="rtl"] .contact-info-item:hover { transform: translateX(-4px); }
+    .contact-info-item .ci-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .ci-wa { background: rgba(37, 211, 102, .14); color: var(--whatsapp); }
+    .ci-tg { background: rgba(34, 158, 217, .14); color: var(--telegram); }
+    .ci-em { background: rgba(245, 158, 11, .14); color: var(--accent); }
+    .contact-info-item .ci-text { flex: 1; min-width: 0; }
+    .contact-info-item .ci-label {
+      font-size: .72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+    .contact-info-item .ci-value {
+      font-size: .9rem;
+      font-weight: 600;
+      direction: ltr;
+      word-break: break-all;
+    }
+    body[dir="rtl"] .contact-info-item .ci-value { text-align: right; }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2.2rem 1.8rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: .8rem;
+      max-width: 1160px;
+      margin: 0 auto;
+    }
+    footer p { margin-bottom: .4rem; }
+
+    .reveal { opacity: 0; transform: translateY(26px); transition: .75s ease-out; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    .pdf-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background: rgba(0, 0, 0, .82);
+      backdrop-filter: blur(7px);
+      align-items: center;
+      justify-content: center;
+      padding: 1.8rem;
+    }
+    .pdf-modal.active { display: flex; }
+    .pdf-modal-content {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 2.2rem;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+    }
+    .pdf-modal h3 { font-size: 1.3rem; margin-bottom: .85rem; color: var(--primary); }
+    .pdf-modal p { color: var(--muted); margin-bottom: 1.7rem; font-size: .92rem; }
+    .pdf-options { display: grid; gap: .85rem; margin-bottom: 1.2rem; }
+    .pdf-option {
+      display: flex;
+      align-items: center;
+      gap: .9rem;
+      padding: 1.05rem;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: .25s;
+      text-align: start;
+    }
+    .pdf-option:hover { border-color: var(--primary); background: var(--surface2); }
+    .pdf-option .po-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 11px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      background: rgba(56, 189, 248, .13);
+    }
+    .pdf-option .po-text h4 { font-size: .95rem; margin-bottom: .15rem; color: var(--text); }
+    .pdf-option .po-text p { font-size: .8rem; color: var(--muted); margin: 0; }
+    .pdf-close {
+      position: absolute;
+      top: .85rem;
+      inset-inline-end: .85rem;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 1.4rem;
+      cursor: pointer;
+    }
+    .pdf-close:hover { color: var(--text); }
+
+    @media (max-width: 900px) {
+      .contact-wrapper { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      nav { padding: .8rem 1rem; flex-wrap: wrap; }
+      .nav-links { display: none; }
+      .why-grid { grid-template-columns: 1fr; }
+      .capital-layout { grid-template-columns: 1fr; }
+      .abgrenzung { flex-direction: column; text-align: center; }
+      .revenue-item { flex-wrap: wrap; }
+      .revenue-price { margin-inline-start: 0; width: 100%; }
+      section { padding: 3.2rem 1.1rem; }
+      .hero { padding: 6.5rem 1.1rem 2.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-logo">
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="40" height="40" rx="10" fill="#0a0e1a"/>
+        <path d="M8 28 L20 8 L32 28 Z" stroke="#38bdf8" stroke-width="2.2" fill="none"/>
+        <circle cx="20" cy="22" r="4.5" fill="#f59e0b"/>
+        <path d="M14 28 Q20 20 26 28" stroke="#38bdf8" stroke-width="1.6" fill="none"/>
+      </svg>
+      Voya<span>AI</span>
+    </div>
+    <div class="nav-links">
+      <a href="#vorhaben" data-i18n="nav.vorhaben">Vorhaben</a>
+      <a href="#status" data-i18n="nav.status">Status</a>
+      <a href="#modell" data-i18n="nav.modell">Modell</a>
+      <a href="#zahlen" data-i18n="nav.zahlen">Zahlen</a>
+      <a href="#risiken" data-i18n="nav.risiken">Risiken</a>
+      <a href="#kontakt" class="nav-cta" data-i18n="nav.kontakt">Kontakt</a>
+    </div>
+    <div class="nav-right">
+      <select class="lang-select" id="langSelect" onchange="setLang(this.value)">
+        <option value="de">Deutsch</option>
+        <option value="en">English</option>
+        <option value="fa">فارسی</option>
+        <option value="fr">Français</option>
+        <option value="es">Español</option>
+        <option value="it">Italiano</option>
+        <option value="tr">Türkçe</option>
+        <option value="ar">العربية</option>
+        <option value="nl">Nederlands</option>
+        <option value="pl">Polski</option>
+        <option value="pt">Português</option>
+      </select>
+      <button class="pdf-btn" onclick="openPdfModal()">📄 PDF</button>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-content">
+      <div class="badge" data-i18n="hero.badge">📍 Frankfurt am Main · § 21 Abs. 1 AufenthG · September 2026</div>
+      <h1>
+        <span data-i18n="hero.title1">AI Travel Planning</span>
+        <span class="grad" data-i18n="hero.title2">& Duty of Care</span><br>
+        <span data-i18n="hero.title3">in one platform</span>
+      </h1>
+      <p data-i18n="hero.desc">
+        VoyaAI generates day-by-day itineraries with accommodation, cost estimates, packing lists and local alerts.
+        For organisations it adds risk briefings, crisis protocols and offline dossiers — making duty of care measurable and auditable.
+      </p>
+      <div class="hero-buttons">
+        <a href="#kontakt" class="btn btn-primary" data-i18n="hero.cta1">Request a conversation →</a>
+        <a href="#vorhaben" class="btn btn-outline" data-i18n="hero.cta2">Learn more</a>
+      </div>
+      <div class="quick-contact">
+        <a href="https://wa.me/989017673071" target="_blank" rel="noopener" class="quick-btn quick-wa">💬 WhatsApp</a>
+        <a href="https://t.me/+989017673071" target="_blank" rel="noopener" class="quick-btn quick-tg">✈️ Telegram</a>
+        <a href="mailto:farhadnaghibi56@gmail.com" class="quick-btn quick-em">📧 Email</a>
+      </div>
+      <div class="hero-meta">
+        <span data-i18n="hero.meta1">🇪🇺 EU processing</span>
+        <span data-i18n="hero.meta2">🔒 Self-hostable</span>
+        <span data-i18n="hero.meta3">🌐 11 languages</span>
+      </div>
+    </div>
+  </header>
+
+  <section id="vorhaben" class="reveal">
+    <div class="section-tag" data-i18n="vorhaben.tag">The Project</div>
+    <h2 class="section-title" data-i18n="vorhaben.title">What VoyaAI solves</h2>
+    <p class="section-sub" data-i18n="vorhaben.sub">
+      One platform that connects personal travel preparation with institutional duty-of-care — from itinerary design and budget planning to real-time risk awareness and operational documentation.
+    </p>
+
+    <div class="three-sentences">
+      <p data-i18n="vorhaben.text1"><strong>VoyaAI</strong> turns travel requests into structured, itinerary-based plans with hotel, transport, cost and local context.</p>
+      <p data-i18n="vorhaben.text2"><strong>For organisations</strong>, the same workflow becomes a compliant travel and safety process with risk briefing, emergency instructions and approval logic.</p>
+      <p data-i18n="vorhaben.text3"><strong>Everything is exportable</strong>, offline-ready and designed to fit EU hosting and internal operational controls.</p>
+    </div>
+
+    <div class="why-grid">
+      <div class="why-card">
+        <div class="icon">✈️</div>
+        <h3 data-i18n="why.1.title">Trip Planning</h3>
+        <p data-i18n="why.1.text">AI-generated day-by-day schedules with accommodation, local recommendations, packing lists and budget estimates.</p>
+      </div>
+      <div class="why-card">
+        <div class="icon">🛡️</div>
+        <h3 data-i18n="why.2.title">Duty of Care</h3>
+        <p data-i18n="why.2.text">Risk-aware travel support with destination briefings, emergency contacts and local escalation paths.</p>
+      </div>
+      <div class="why-card">
+        <div class="icon">📋</div>
+        <h3 data-i18n="why.3.title">Operational Clarity</h3>
+        <p data-i18n="why.3.text">Structured approvals, manual overrides and clear exportable documents for teams and travellers.</p>
+      </div>
+      <div class="why-card">
+        <div class="icon">🔒</div>
+        <h3 data-i18n="why.4.title">EU-Safe Setup</h3>
+        <p data-i18n="why.4.text">Self-hostable platform architecture designed for EU residency, privacy-sensitive handling and internal hosting.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="status" class="reveal">
+    <div class="section-tag" data-i18n="status.tag">Status</div>
+    <h2 class="section-title" data-i18n="status.title">Current status</h2>
+    <div class="status-grid">
+      <div class="status-item">
+        <div class="status-dot dot-green"></div>
+        <div class="status-label" data-i18n="status.label1">Product Stage</div>
+        <div class="status-value" data-i18n="status.value1">Concept + Prototype</div>
+      </div>
+      <div class="status-item">
+        <div class="status-dot dot-amber"></div>
+        <div class="status-label" data-i18n="status.label2">Market focus</div>
+        <div class="status-value" data-i18n="status.value2">B2B travel / duty-of-care</div>
+      </div>
+      <div class="status-item">
+        <div class="status-dot dot-green"></div>
+        <div class="status-label" data-i18n="status.label3">Hosting model</div>
+        <div class="status-value" data-i18n="status.value3">Self-hostable / EU hosted</div>
+      </div>
+      <div class="status-item">
+        <div class="status-dot dot-amber"></div>
+        <div class="status-label" data-i18n="status.label4">Language support</div>
+        <div class="status-value" data-i18n="status.value4">11 languages</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="modell" class="reveal">
+    <div class="section-tag" data-i18n="modell.tag">Business Model</div>
+    <h2 class="section-title" data-i18n="modell.title">How the business can work</h2>
+    <div class="revenue-list">
+      <div class="revenue-item">
+        <div class="revenue-num">1</div>
+        <div class="revenue-content">
+          <h3 data-i18n="modell.item1.title">Enterprise licensing</h3>
+          <p data-i18n="modell.item1.text">Annual or monthly platform access for travel teams, HR or compliance functions.</p>
+        </div>
+        <div class="revenue-price" data-i18n="modell.item1.price">€5.000–€20.000 / mo</div>
+      </div>
+      <div class="revenue-item">
+        <div class="revenue-num">2</div>
+        <div class="revenue-content">
+          <h3 data-i18n="modell.item2.title">White-label deployments</h3>
+          <p data-i18n="modell.item2.text">Tailored setup for selected corporate or association clients with their own branding.</p>
+        </div>
+        <div class="revenue-price" data-i18n="modell.item2.price">€15.000–€60.000 / setup</div>
+      </div>
+      <div class="revenue-item">
+        <div class="revenue-num">3</div>
+        <div class="revenue-content">
+          <h3 data-i18n="modell.item3.title">Travel-service add-ons</h3>
+          <p data-i18n="modell.item3.text">Premium concierge services, documentation packs, emergency support and audit reporting.</p>
+        </div>
+        <div class="revenue-price" data-i18n="modell.item3.price">€49–€299 / trip</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="zahlen" class="reveal">
+    <div class="section-tag" data-i18n="zahlen.tag">Numbers</div>
+    <h2 class="section-title" data-i18n="zahlen.title">Key figures and rough sizing</h2>
+
+    <div class="table-wrap">
+      <table class="numbers-table">
+        <thead>
+          <tr>
+            <th data-i18n="zahlen.table.col1">Category</th>
+            <th data-i18n="zahlen.table.col2">Rough value</th>
+            <th data-i18n="zahlen.table.col3">Comment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="row-label" data-i18n="zahlen.row1.name">Target market</td>
+            <td data-i18n="zahlen.row1.value">Companies with international travel</td>
+            <td data-i18n="zahlen.row1.comment">High recurring need</td>
+          </tr>
+          <tr>
+            <td class="row-label" data-i18n="zahlen.row2.name">Pricing floor</td>
+            <td class="highlight" data-i18n="zahlen.row2.value">€5k/month</td>
+            <td data-i18n="zahlen.row2.comment">Minimum SaaS entry point</td>
+          </tr>
+          <tr>
+            <td class="row-label" data-i18n="zahlen.row3.name">Hosting margin</td>
+            <td class="highlight" data-i18n="zahlen.row3.value">Strong</td>
+            <td data-i18n="zahlen.row3.comment">Self-hosting reduces dependency risk</td>
+          </tr>
+          <tr>
+            <td class="row-label" data-i18n="zahlen.row4.name">Implementation effort</td>
+            <td class="loss" data-i18n="zahlen.row4.value">Medium</td>
+            <td data-i18n="zahlen.row4.comment">Needs onboarding and policy tuning</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="footnote" data-i18n="zahlen.footnote">This is an early-stage business concept; figures are directional and intended to frame commercial logic rather than serve as audited financial statements.</div>
+
+    <div class="capital-layout">
+      <div class="capital-total">
+        <div class="amount">€180k</div>
+        <div class="label" data-i18n="zahlen.capital.label">Indicative setup range</div>
+      </div>
+      <div class="capital-bars">
+        <div class="cap-bar">
+          <div class="cap-head"><span data-i18n="zahlen.capital.a">Product build</span><span class="pct">35%</span></div>
+          <div class="cap-track"><div class="cap-fill" style="width:35%"></div></div>
+        </div>
+        <div class="cap-bar">
+          <div class="cap-head"><span data-i18n="zahlen.capital.b">Security & compliance</span><span class="pct">25%</span></div>
+          <div class="cap-track"><div class="cap-fill" style="width:25%"></div></div>
+        </div>
+        <div class="cap-bar">
+          <div class="cap-head"><span data-i18n="zahlen.capital.c">Operations & onboarding</span><span class="pct">20%</span></div>
+          <div class="cap-track"><div class="cap-fill" style="width:20%"></div></div>
+        </div>
+        <div class="cap-bar">
+          <div class="cap-head"><span data-i18n="zahlen.capital.d">Marketing & pilot deals</span><span class="pct">20%</span></div>
+          <div class="cap-track"><div class="cap-fill" style="width:20%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="frankfurt">
+      <div class="section-tag" data-i18n="zahlen.frankfurt.tag">Frankfurt</div>
+      <h3 class="section-title" data-i18n="zahlen.frankfurt.title">EU-based positioning</h3>
+      <div class="frankfurt-grid">
+        <div class="frankfurt-item">
+          <div class="icon">🏛️</div>
+          <h4 data-i18n="zahlen.frankfurt.1.title">Regional base</h4>
+          <p data-i18n="zahlen.frankfurt.1.text">Frankfurt am Main</p>
+        </div>
+        <div class="frankfurt-item">
+          <div class="icon">📜</div>
+          <h4 data-i18n="zahlen.frankfurt.2.title">Compliance fit</h4>
+          <p data-i18n="zahlen.frankfurt.2.text">EU processing and local hosting</p>
+        </div>
+        <div class="frankfurt-item">
+          <div class="icon">🌍</div>
+          <h4 data-i18n="zahlen.frankfurt.3.title">Global mobility</h4>
+          <p data-i18n="zahlen.frankfurt.3.text">Distance-friendly operations</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="risiken" class="reveal">
+    <div class="section-tag" data-i18n="risiken.tag">Risks</div>
+    <h2 class="section-title" data-i18n="risiken.title">Main risks and challenges</h2>
+    <div class="risks-grid">
+      <div class="risk-card">
+        <h4 data-i18n="risiken.1.title">Low product differentiation</h4>
+        <p data-i18n="risiken.1.text">Travel planning and risk monitoring are crowded categories; the clear value proposition needs to be highly specific.</p>
+      </div>
+      <div class="risk-card">
+        <h4 data-i18n="risiken.2.title">Market education</h4>
+        <p data-i18n="risiken.2.text">Many buyers still see duty-of-care as a compliance issue rather than a digital workflow opportunity.</p>
+      </div>
+      <div class="risk-card">
+        <h4 data-i18n="risiken.3.title">Operational complexity</h4>
+        <p data-i18n="risiken.3.text">Customer teams have unique policies, local requirements and emergency response workflows that must be integrated carefully.</p>
+      </div>
+    </div>
+
+    <div class="abgrenzung">
+      <div class="shield">🛡️</div>
+      <div>
+        <h3 data-i18n="risiken.abgrenzung.title">Clear differentiation</h3>
+        <p data-i18n="risiken.abgrenzung.text">VoyaAI stands apart by combining AI-generated travel planning with structured duty-of-care logic in a single, self-hostable workflow. The product is positioned as operational tooling, not generic travel advice.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="kontakt" class="reveal">
+    <div class="section-tag" data-i18n="kontakt.tag">Contact</div>
+    <h2 class="section-title" data-i18n="kontakt.title">Speak with the founder</h2>
+
+    <div class="contact-wrapper">
+      <div class="contact-card">
+        <h3 data-i18n="kontakt.form.title">Request an introduction</h3>
+
+        <form id="contactForm" novalidate>
+          <div class="form-group">
+            <label for="name" data-i18n="kontakt.form.name">Name</label>
+            <input id="name" name="name" type="text" />
+            <div class="error" data-i18n="kontakt.form.error.name">Please enter your name.</div>
+          </div>
+
+          <div class="form-group">
+            <label for="email" data-i18n="kontakt.form.email">Email</label>
+            <input id="email" name="email" type="email" />
+            <div class="error" data-i18n="kontakt.form.error.email">Please enter a valid email.</div>
+          </div>
+
+          <div class="form-group">
+            <label for="message" data-i18n="kontakt.form.message">Message</label>
+            <textarea id="message" name="message"></textarea>
+            <div class="error" data-i18n="kontakt.form.error.message">Please add a short message.</div>
+          </div>
+
+          <button class="btn btn-primary" type="submit" data-i18n="kontakt.form.submit">Send inquiry</button>
+          <div class="form-status" id="formStatus"></div>
+        </form>
+      </div>
+
+      <div class="contact-card">
+        <h3 data-i18n="kontakt.info.title">Direct channels</h3>
+        <div class="contact-info-list">
+          <a href="https://wa.me/989017673071" target="_blank" rel="noopener" class="contact-info-item">
+            <div class="ci-icon ci-wa">💬</div>
+            <div class="ci-text">
+              <div class="ci-label" data-i18n="kontakt.info.wa">WhatsApp</div>
+              <div class="ci-value">+98 901 767 3071</div>
+            </div>
+          </a>
+          <a href="https://t.me/+989017673071" target="_blank" rel="noopener" class="contact-info-item">
+            <div class="ci-icon ci-tg">✈️</div>
+            <div class="ci-text">
+              <div class="ci-label" data-i18n="kontakt.info.tg">Telegram</div>
+              <div class="ci-value">@voyaai</div>
+            </div>
+          </a>
+          <a href="mailto:farhadnaghibi56@gmail.com" class="contact-info-item">
+            <div class="ci-icon ci-em">📧</div>
+            <div class="ci-text">
+              <div class="ci-label" data-i18n="kontakt.info.email">Email</div>
+              <div class="ci-value">farhadnaghibi56@gmail.com</div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>VoyaAI — AI Travel Planning & Duty of Care</p>
+    <p>Frankfurt am Main · EU-hosted · Self-hostable</p>
+  </footer>
+
+  <div class="pdf-modal" id="pdfModal" aria-modal="true" role="dialog" aria-labelledby="pdfTitle">
+    <div class="pdf-modal-content">
+      <button class="pdf-close" aria-label="Close" onclick="closePdfModal()">×</button>
+      <h3 id="pdfTitle">Download VoyaAI PDF</h3>
+      <p>Choose a version of the overview to export.</p>
+      <div class="pdf-options">
+        <div class="pdf-option" onclick="generatePdf('short')">
+          <div class="po-icon">📄</div>
+          <div class="po-text">
+            <h4>Short overview</h4>
+            <p>1-page executive summary</p>
+          </div>
+        </div>
+        <div class="pdf-option" onclick="generatePdf('full')">
+          <div class="po-icon">📘</div>
+          <div class="po-text">
+            <h4>Full deck style</h4>
+            <p>Multi-section concept summary</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const translations = {
+      de: {
+        'nav.vorhaben': 'Vorhaben',
+        'nav.status': 'Status',
+        'nav.modell': 'Modell',
+        'nav.zahlen': 'Zahlen',
+        'nav.risiken': 'Risiken',
+        'nav.kontakt': 'Kontakt',
+        'hero.badge': '📍 Frankfurt am Main · § 21 Abs. 1 AufenthG · September 2026',
+        'hero.title1': 'AI Travel Planning',
+        'hero.title2': '& Duty of Care',
+        'hero.title3': 'in one platform',
+        'hero.desc': 'VoyaAI erzeugt tageweise Reisen mit Unterkunft, Kosten, Packliste und lokalen Hinweisen. Für Unternehmen ergänzt es Risikoberichte, Krisenprotokolle und Offline-Dossiers – damit Duty of Care messbar und prüfbar wird.',
+        'hero.cta1': 'Gespräch anfragen →',
+        'hero.cta2': 'Mehr erfahren',
+        'hero.meta1': '🇪🇺 EU-Verarbeitung',
+        'hero.meta2': '🔒 Selbst hostbar',
+        'hero.meta3': '🌐 11 Sprachen',
+        'vorhaben.tag': 'Das Projekt',
+        'vorhaben.title': 'Was VoyaAI löst',
+        'vorhaben.sub': 'Eine Plattform, die persönliche Reisevorbereitung mit institutioneller Duty-of-Care verbindet – von Reiseplanung und Budget bis hin zu Risikobewusstsein und Dokumentation.',
+        'vorhaben.text1': '<strong>VoyaAI</strong> wandelt Reiseanfragen in strukturierte, tagweise Pläne mit Unterkunft, Transport, Kosten und lokalem Kontext um.',
+        'vorhaben.text2': '<strong>Für Organisationen</strong> wird derselbe Workflow zu einem konformen Reise- und Sicherheitsprozess mit Risikobriefing, Notfallanweisungen und Freigabelogik.',
+        'vorhaben.text3': '<strong>Alles ist exportierbar</strong>, offline nutzbar und für EU-Hosting sowie interne Betriebsprozesse geeignet.',
+        'why.1.title': 'Reiseplanung',
+        'why.1.text': 'KI-generierte Tagespläne mit Unterkunft, lokalen Empfehlungen, Packlisten und Budgetschätzungen.',
+        'why.2.title': 'Duty of Care',
+        'why.2.text': 'Risikoorientierte Reiseunterstützung mit Zielbriefings, Notfallkontakten und Eskalationspfaden.',
+        'why.3.title': 'Operationale Klarheit',
+        'why.3.text': 'Strukturierte Freigaben, manuelle Überschreibungen und exportierbare Dokumente für Teams und Reisende.',
+        'why.4.title': 'EU-sichere Einrichtung',
+        'why.4.text': 'Selbst hostbare Architektur, geeignet für EU-Standort, Datenschutz und interne Bereitstellung.',
+        'status.tag': 'Status',
+        'status.title': 'Aktueller Status',
+        'status.label1': 'Produktphase',
+        'status.value1': 'Konzept + Prototyp',
+        'status.label2': 'Markt Fokus',
+        'status.value2': 'B2B Reise / Duty-of-Care',
+        'status.label3': 'Hosting Modell',
+        'status.value3': 'Selbst hostbar / EU-Host',
+        'status.label4': 'Sprachen',
+        'status.value4': '11 Sprachen',
+        'modell.tag': 'Geschäftsmodell',
+        'modell.title': 'Wie das Geschäft funktionieren kann',
+        'modell.item1.title': 'Unternehmens-Lizenzen',
+        'modell.item1.text': 'Jährlicher oder monatlicher Zugang für Reise-, HR- oder Compliance-Teams.',
+        'modell.item1.price': '€5.000–€20.000 / Monat',
+        'modell.item2.title': 'White-Label-Deployments',
+        'modell.item2.text': 'Maßgeschneiderte Implementierung für ausgewählte Firmen oder Verbände mit Eigenmarke.',
+        'modell.item2.price': '€15.000–€60.000 / Setup',
+        'modell.item3.title': 'Service-Add-ons',
+        'modell.item3.text': 'Premium Concierge, Dokumentationspakete, Notfallunterstützung und Audit-Berichte.',
+        'modell.item3.price': '€49–€299 / Reise',
+        'zahlen.tag': 'Zahlen',
+        'zahlen.title': 'Schlüsselfiguren und grobe Größenordnung',
+        'zahlen.table.col1': 'Kategorie',
+        'zahlen.table.col2': 'Grober Wert',
+        'zahlen.table.col3': 'Kommentar',
+        'zahlen.row1.name': 'Zielmarkt',
+        'zahlen.row1.value': 'Unternehmen mit internationalen Reisen',
+        'zahlen.row1.comment': 'Hoher wiederkehrender Bedarf',
+        'zahlen.row2.name': 'Preisgrenze',
+        'zahlen.row2.value': '€5k/Monat',
+        'zahlen.row2.comment': 'Minimaler SaaS-Einstieg',
+        'zahlen.row3.name': 'Hosting-Marge',
+        'zahlen.row3.value': 'Stark',
+        'zahlen.row3.comment': 'Selbst-Hosting reduziert Abhängigkeit',
+        'zahlen.row4.name': 'Umsetzungsaufwand',
+        'zahlen.row4.value': 'Mittel',
+        'zahlen.row4.comment': 'Benötigt Onboarding und Policy-Tuning',
+        'zahlen.footnote': 'Dies ist ein Frühphasen-Konzept; die Zahlen sind orientierend und dienen der Geschäftsfeld-Logik, nicht als geprüfte Finanzdaten.',
+        'zahlen.capital.label': 'Grober Setup-Bereich',
+        'zahlen.capital.a': 'Produktentwicklung',
+        'zahlen.capital.b': 'Sicherheit & Compliance',
+        'zahlen.capital.c': 'Betrieb & Onboarding',
+        'zahlen.capital.d': 'Marketing & Pilot-Projekte',
+        'zahlen.frankfurt.tag': 'Frankfurt',
+        'zahlen.frankfurt.title': 'EU-basierte Positionierung',
+        'zahlen.frankfurt.1.title': 'Regionaler Standort',
+        'zahlen.frankfurt.1.text': 'Frankfurt am Main',
+        'zahlen.frankfurt.2.title': 'Compliance-Passung',
+        'zahlen.frankfurt.2.text': 'EU-Verarbeitung und lokales Hosting',
+        'zahlen.frankfurt.3.title': 'Globale Mobilität',
+        'zahlen.frankfurt.3.text': 'Fernarbeitsfreundlich',
+        'risiken.tag': 'Risiken',
+        'risiken.title': 'Wichtige Risiken und Herausforderungen',
+        'risiken.1.title': 'Niedrige Produktunterscheidung',
+        'risiken.1.text': 'Reiseplanung und Risikobewertung sind stark besetzt; das Alleinstellungsmerkmal muss präzise sein.',
+        'risiken.2.title': 'Marktverständnis',
+        'risiken.2.text': 'Viele Käufer sehen Duty of Care noch als Compliance-Thema statt als digitalen Workflow.',
+        'risiken.3.title': 'Operationale Komplexität',
+        'risiken.3.text': 'Kunden haben verschiedene Richtlinien, lokale Anforderungen und Krisenprozesse, die sorgfältig integriert werden müssen.',
+        'risiken.abgrenzung.title': 'Klarer Unterschied',
+        'risiken.abgrenzung.text': 'VoyaAI unterscheidet sich durch die Kombination aus KI-Reiseplanung und strukturierter Duty-of-Care-Logik in einem selbst hostbaren Workflow. Das Produkt ist als operatives Werkzeug positioniert, nicht als generische Reiseberatung.',
+        'kontakt.tag': 'Kontakt',
+        'kontakt.title': 'Mit dem Gründer sprechen',
+        'kontakt.form.title': 'Vorstellung anfragen',
+        'kontakt.form.name': 'Name',
+        'kontakt.form.email': 'E-Mail',
+        'kontakt.form.message': 'Nachricht',
+        'kontakt.form.error.name': 'Bitte geben Sie Ihren Namen ein.',
+        'kontakt.form.error.email': 'Bitte geben Sie eine gültige E-Mail-Adresse ein.',
+        'kontakt.form.error.message': 'Bitte geben Sie eine kurze Nachricht ein.',
+        'kontakt.form.submit': 'Anfrage senden',
+        'kontakt.info.title': 'Direkte Kanäle',
+        'kontakt.info.wa': 'WhatsApp',
+        'kontakt.info.tg': 'Telegram',
+        'kontakt.info.email': 'E-Mail'
+      },
+      en: {
+        'nav.vorhaben': 'Project',
+        'nav.status': 'Status',
+        'nav.modell': 'Model',
+        'nav.zahlen': 'Numbers',
+        'nav.risiken': 'Risks',
+        'nav.kontakt': 'Contact',
+        'hero.badge': '📍 Frankfurt am Main · § 21 Abs. 1 AufenthG · September 2026',
+        'hero.title1': 'AI Travel Planning',
+        'hero.title2': '& Duty of Care',
+        'hero.title3': 'in one platform',
+        'hero.desc': 'VoyaAI generates day-by-day itineraries with accommodation, cost estimates, packing lists and local alerts. For organisations it adds risk briefings, crisis protocols and offline dossiers — making duty of care measurable and auditable.',
+        'hero.cta1': 'Request a conversation →',
+        'hero.cta2': 'Learn more',
+        'hero.meta1': '🇪🇺 EU processing',
+        'hero.meta2': '🔒 Self-hostable',
+        'hero.meta3': '🌐 11 languages',
+        'vorhaben.tag': 'The Project',
+        'vorhaben.title': 'What VoyaAI solves',
+        'vorhaben.sub': 'One platform that connects personal travel preparation with institutional duty-of-care — from itinerary design and budget planning to real-time risk awareness and operational documentation.',
+        'vorhaben.text1': '<strong>VoyaAI</strong> turns travel requests into structured, itinerary-based plans with hotel, transport, cost and local context.',
+        'vorhaben.text2': '<strong>For organisations</strong>, the same workflow becomes a compliant travel and safety process with risk briefing, emergency instructions and approval logic.',
+        'vorhaben.text3': '<strong>Everything is exportable</strong>, offline-ready and designed to fit EU hosting and internal operational controls.',
+        'why.1.title': 'Trip Planning',
+        'why.1.text': 'AI-generated day-by-day schedules with accommodation, local recommendations, packing lists and budget estimates.',
+        'why.2.title': 'Duty of Care',
+        'why.2.text': 'Risk-aware travel support with destination briefings, emergency contacts and local escalation paths.',
+        'why.3.title': 'Operational Clarity',
+        'why.3.text': 'Structured approvals, manual overrides and clear exportable documents for teams and travellers.',
+        'why.4.title': 'EU-Safe Setup',
+        'why.4.text': 'Self-hostable platform architecture designed for EU residency, privacy-sensitive handling and internal hosting.',
+        'status.tag': 'Status',
+        'status.title': 'Current status',
+        'status.label1': 'Product Stage',
+        'status.value1': 'Concept + Prototype',
+        'status.label2': 'Market focus',
+        'status.value2': 'B2B travel / duty-of-care',
+        'status.label3': 'Hosting model',
+        'status.value3': 'Self-hostable / EU hosted',
+        'status.label4': 'Language support',
+        'status.value4': '11 languages',
+        'modell.tag': 'Business Model',
+        'modell.title': 'How the business can work',
+        'modell.item1.title': 'Enterprise licensing',
+        'modell.item1.text': 'Annual or monthly platform access for travel teams, HR or compliance functions.',
+        'modell.item1.price': '€5.000–€20.000 / mo',
+        'modell.item2.title': 'White-label deployments',
+        'modell.item2.text': 'Tailored setup for selected corporate or association clients with their own branding.',
+        'modell.item2.price': '€15.000–€60.000 / setup',
+        'modell.item3.title': 'Travel-service add-ons',
+        'modell.item3.text': 'Premium concierge services, documentation packs, emergency support and audit reporting.',
+        'modell.item3.price': '€49–€299 / trip',
+        'zahlen.tag': 'Numbers',
+        'zahlen.title': 'Key figures and rough sizing',
+        'zahlen.table.col1': 'Category',
+        'zahlen.table.col2': 'Rough value',
+        'zahlen.table.col3': 'Comment',
+        'zahlen.row1.name': 'Target market',
+        'zahlen.row1.value': 'Companies with international travel',
+        'zahlen.row1.comment': 'High recurring need',
+        'zahlen.row2.name': 'Pricing floor',
+        'zahlen.row2.value': '€5k/month',
+        'zahlen.row2.comment': 'Minimum SaaS entry point',
+        'zahlen.row3.name': 'Hosting margin',
+        'zahlen.row3.value': 'Strong',
+        'zahlen.row3.comment': 'Self-hosting reduces dependency risk',
+        'zahlen.row4.name': 'Implementation effort',
+        'zahlen.row4.value': 'Medium',
+        'zahlen.row4.comment': 'Needs onboarding and policy tuning',
+        'zahlen.footnote': 'This is an early-stage business concept; figures are directional and intended to frame commercial logic rather than serve as audited financial statements.',
+        'zahlen.capital.label': 'Indicative setup range',
+        'zahlen.capital.a': 'Product build',
+        'zahlen.capital.b': 'Security & compliance',
+        'zahlen.capital.c': 'Operations & onboarding',
+        'zahlen.capital.d': 'Marketing & pilot deals',
+        'zahlen.frankfurt.tag': 'Frankfurt',
+        'zahlen.frankfurt.title': 'EU-based positioning',
+        'zahlen.frankfurt.1.title': 'Regional base',
+        'zahlen.frankfurt.1.text': 'Frankfurt am Main',
+        'zahlen.frankfurt.2.title': 'Compliance fit',
+        'zahlen.frankfurt.2.text': 'EU processing and local hosting',
+        'zahlen.frankfurt.3.title': 'Global mobility',
+        'zahlen.frankfurt.3.text': 'Distance-friendly operations',
+        'risiken.tag': 'Risks',
+        'risiken.title': 'Main risks and challenges',
+        'risiken.1.title': 'Low product differentiation',
+        'risiken.1.text': 'Travel planning and risk monitoring are crowded categories; the clear value proposition needs to be highly specific.',
+        'risiken.2.title': 'Market education',
+        'risiken.2.text': 'Many buyers still see duty-of-care as a compliance issue rather than a digital workflow opportunity.',
+        'risiken.3.title': 'Operational complexity',
+        'risiken.3.text': 'Customer teams have unique policies, local requirements and emergency response workflows that must be integrated carefully.',
+        'risiken.abgrenzung.title': 'Clear differentiation',
+        'risiken.abgrenzung.text': 'VoyaAI stands apart by combining AI-generated travel planning with structured duty-of-care logic in a single, self-hostable workflow. The product is positioned as operational tooling, not generic travel advice.',
+        'kontakt.tag': 'Contact',
+        'kontakt.title': 'Speak with the founder',
+        'kontakt.form.title': 'Request an introduction',
+        'kontakt.form.name': 'Name',
+        'kontakt.form.email': 'Email',
+        'kontakt.form.message': 'Message',
+        'kontakt.form.error.name': 'Please enter your name.',
+        'kontakt.form.error.email': 'Please enter a valid email.',
+        'kontakt.form.error.message': 'Please add a short message.',
+        'kontakt.form.submit': 'Send inquiry',
+        'kontakt.info.title': 'Direct channels',
+        'kontakt.info.wa': 'WhatsApp',
+        'kontakt.info.tg': 'Telegram',
+        'kontakt.info.email': 'Email'
+      },
+      fa: {
+        'nav.vorhaben': 'پروژه',
+        'nav.status': 'وضعیت',
+        'nav.modell': 'مدل',
+        'nav.zahlen': 'اعداد',
+        'nav.risiken': 'ریسک‌ها',
+        'nav.kontakt': 'تماس',
+        'hero.badge': '📍 فرانکفورت آم ماین · § 21 Abs. 1 AufenthG · سپتامبر ۲۰۲۶',
+        'hero.title1': 'برنامه‌ریزی سفر با هوش مصنوعی',
+        'hero.title2': 'و مسئولیت مراقبتی',
+        'hero.title3': 'در یک پلتفرم',
+        'hero.desc': 'VoyaAI برنامه سفر روزبه‌روز را با اقامت، برآورد هزینه، لیست بسته‌بندی و هشدارهای محلی تولید می‌کند. برای سازمان‌ها، این سیستم گزارش ریسک، پروتکل بحران و پرونده‌های آفلاین را هم اضافه می‌کند تا مسئولیت مراقبتی اندازه‌گیری و قابل‌استناد شود.',
+        'hero.cta1': 'درخواست گفت‌وگو →',
+        'hero.cta2': 'بیشتر بدانید',
+        'hero.meta1': '🇪🇺 پردازش اتحادیه اروپا',
+        'hero.meta2': '🔒 قابل میزبانی شخصی',
+        'hero.meta3': '🌐 ۱۱ زبان',
+        'vorhaben.tag': 'پروژه',
+        'vorhaben.title': 'VoyaAI چه مشکلی را حل می‌کند؟',
+        'vorhaben.sub': 'یک پلتفرم که آمادگی سفر شخصی را به مسئولیت مراقبتی سازمانی鏈 می‌کند؛ از طراحی برنامه سفر و بودجه تا آگاهی از ریسک و مستندات عملیاتی.',
+        'vorhaben.text1': '<strong>VoyaAI</strong> درخواست سفر را به برنامه‌های ساختاریافته و روزانه با اقامت، حمل‌ونقل، هزینه و زمینه محلی تبدیل می‌کند.',
+        'vorhaben.text2': '<strong>برای سازمان‌ها</strong>، همین گردش‌کار در یک فرایند سازگار با قوانین و ایمنی تبدیل می‌شود که گزارش ریسک، دستورالعمل‌های اضطراری و منطق تأیید را شامل می‌شود.',
+        'vorhaben.text3': '<strong>همه چیز قابل‌استخراج</strong> است، آماده استفاده آفلاین است و برای میزبانی اروپایی و کنترل‌های داخلی مناسب طراحی شده است.',
+        'why.1.title': 'برنامه‌ریزی سفر',
+        'why.1.text': 'تقویم روزانه تولیدشده توسط هوش مصنوعی با اقامت، توصیه‌های محلی، لیست بسته‌بندی و برآورد هزینه.',
+        'why.2.title': 'مسئولیت مراقبتی',
+        'why.2.text': 'حمایت سفر با آگاهی از ریسک، خلاصه مقصد، تماس‌های اضطراری و مسیرهای ارجاع محلی.',
+        'why.3.title': 'شفافیت عملیاتی',
+        'why.3.text': 'تأییدهای ساختاریافته، لغو/بازنویسی دستی و مستندات قابل‌استخراج برای تیم‌ها و مسافران.',
+        'why.4.title': 'پیکربندی امن اروپایی',
+        'why.4.text': 'معماری قابل میزبانی شخصی برای سکونت اروپا، حفظ حریم خصوصی و میزبانی داخلی.',
+        'status.tag': 'وضعیت',
+        'status.title': 'وضعیت فعلی',
+        'status.label1': 'مرحله محصول',
+        'status.value1': 'مفهوم + نمونه اولیه',
+        'status.label2': 'تمرکز بازار',
+        'status.value2': 'سفر B2B / مسئولیت مراقبتی',
+        'status.label3': 'مدل میزبانی',
+        'status.value3': 'قابل میزبانی شخصی / میزبانی اروپایی',
+        'status.label4': 'پشتیبانی زبان',
+        'status.value4': '۱۱ زبان',
+        'modell.tag': 'مدل کسب‌وکار',
+        'modell.title': 'چگونه کسب‌وکار می‌تواند کار کند',
+        'modell.item1.title': 'مجوزهای سازمانی',
+        'modell.item1.text': 'دسترسی ماهانه یا سالانه برای تیم‌های سفر، منابع انسانی یا تطابق',
+        'modell.item1.price': '۵۰۰۰ تا ۲۰۰۰۰ یورو / ماه',
+        'modell.item2.title': 'پیاده‌سازی White-label',
+        'modell.item2.text': 'راه‌اندازی سفارشی برای مشتریان شرکتی یا انجمن‌ها با برند شخصی.',
+        'modell.item2.price': '۱۵۰۰۰ تا ۶۰۰۰۰ یورو / راه‌اندازی',
+        'modell.item3.title': 'افزونه‌های خدمات سفر',
+        'modell.item3.text': 'خدمات کنسولگری ویژه، بسته مستندات، پشتیبانی اضطراری و گزارش‌های ممیزی.',
+        'modell.item3.price': '۴۹ تا ۲۹۹ یورو / سفر',
+        'zahlen.tag': 'اعداد',
+        'zahlen.title': 'شمارهای کلیدی و مقیاس تقریبی',
+        'zahlen.table.col1': 'دسته',
+        'zahlen.table.col2': 'مقدار تقریبی',
+        'zahlen.table.col3': 'توضیح',
+        'zahlen.row1.name': 'بازار هدف',
+        'zahlen.row1.value': 'شرکت‌هایی با سفرهای بین‌المللی',
+        'zahlen.row1.comment': 'نیاز تکرارشونده بالا',
+        'zahlen.row2.name': 'قیمت پایه',
+        'zahlen.row2.value': '۵۰۰۰ یورو/ماه',
+        'zahlen.row2.comment': 'حداقل ورودی SaaS',
+        'zahlen.row3.name': 'حاشیه میزبانی',
+        'zahlen.row3.value': 'قوی',
+        'zahlen.row3.comment': 'میزبانی شخصی ریسک وابستگی را کم می‌کند',
+        'zahlen.row4.name': 'زحمت پیاده‌سازی',
+        'zahlen.row4.value': 'متوسط',
+        'zahlen.row4.comment': 'نیاز به آموزش و تنظیم سیاست',
+        'zahlen.footnote': 'این یک مفهوم کسب‌وکار در مرحله اولیه است؛ اعداد جهت‌دار هستند و برای تعریف منطق تجاری به‌کار می‌روند، نه به‌عنوان صورت‌های مالی حسابرسی‌شده.',
+        'zahlen.capital.label': 'محدوده تقریبی راه‌اندازی',
+        'zahlen.capital.a': 'ساخت محصول',
+        'zahlen.capital.b': 'امنیت و انطباق',
+        'zahlen.capital.c': 'عملیات و راه‌اندازی',
+        'zahlen.capital.d': 'بازاریابی و پروژه‌های آزمایشی',
+        'zahlen.frankfurt.tag': 'فرانکفورت',
+        'zahlen.frankfurt.title': 'موقعیت‌گیری اروپایی',
+        'zahlen.frankfurt.1.title': 'پایه منطقه‌ای',
+        'zahlen.frankfurt.1.text': 'فرانکفورت آم ماین',
+        'zahlen.frankfurt.2.title': 'سازگاری با مقررات',
+        'zahlen.frankfurt.2.text': 'پردازش اروپایی و میزبانی محلی',
+        'zahlen.frankfurt.3.title': 'تحرک جهانی',
+        'zahlen.frankfurt.3.text': 'عملیات مناسب برای دورکاری',
+        'risiken.tag': 'ریسک‌ها',
+        'risiken.title': 'ریسک‌ها و چالش‌های اصلی',
+        'risiken.1.title': 'تمایز کم محصول',
+        'risiken.1.text': 'برنامه‌ریزی سفر و مانیتورینگ ریسک بازار شلوغی دارند و باید ارزش پیشنهادی خیلی دقیق مشخص شود.',
+        'risiken.2.title': 'آموزش بازار',
+        'risiken.2.text': 'بسیاری از خریداران هنوز مسئولیت مراقبتی را یک مسئله رعایت مقررات می‌بینند نه فرصت یک گردش‌کار دیجیتال.',
+        'risiken.3.title': 'پیچیدگی عملیاتی',
+        'risiken.3.text': 'تیم‌های مشتری سیاست‌های خاص، نیازهای محلی و فرایندهای واکنش اضطراری دارند که باید با دقت یکپارچه شوند.',
+        'risiken.abgrenzung.title': 'تمایز شفاف',
+        'risiken.abgrenzung.text': 'VoyaAI با ترکیب برنامه‌ریزی سفر هوشمند و منطق مسئولیت مراقبتی ساختاریافته در یک گردش‌کار قابل میزبانی شخصی از رقبا متمایز می‌شود. محصول به‌عنوان ابزار عملیاتی، نه مشاوره سفر عمومی، حاضر شده است.',
+        'kontakt.tag': 'تماس',
+        'kontakt.title': 'با بنیان‌گذار صحبت کنید',
+        'kontakt.form.title': 'درخواست معرفی',
+        'kontakt.form.name': 'نام',
+        'kontakt.form.email': 'ایمیل',
+        'kontakt.form.message': 'پیام',
+        'kontakt.form.error.name': 'لطفاً نام خود را وارد کنید.',
+        'kontakt.form.error.email': 'لطفاً یک ایمیل معتبر وارد کنید.',
+        'kontakt.form.error.message': 'لطفاً یک پیام کوتاه بنویسید.',
+        'kontakt.form.submit': 'ارسال درخواست',
+        'kontakt.info.title': 'کانال‌های مستقیم',
+        'kontakt.info.wa': 'واتساپ',
+        'kontakt.info.tg': 'تلگرام',
+        'kontakt.info.email': 'ایمیل'
+      }
+    };
+
+    function setLang(lang) {
+      const map = translations[lang] || translations.de;
+      document.documentElement.lang = lang;
+      document.body.setAttribute('dir', lang === 'fa' || lang === 'ar' ? 'rtl' : 'ltr');
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (map[key]) {
+          el.innerHTML = map[key];
+        }
+      });
+      document.getElementById('langSelect').value = lang;
+    }
+
+    function openPdfModal() {
+      document.getElementById('pdfModal').classList.add('active');
+    }
+    function closePdfModal() {
+      document.getElementById('pdfModal').classList.remove('active');
+    }
+
+    function generatePdf(mode) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const margin = 14;
+
+      doc.setFillColor(10, 14, 26);
+      doc.rect(0, 0, pageWidth, 297, 'F');
+      doc.setTextColor(232, 238, 247); 
+      doc.setFontSize(22);
+      doc.setFont('helvetica', 'bold');
+      doc.text('VoyaAI', margin, 22);
+      doc.setFontSize(11);
+      doc.setTextColor(148, 163, 184);
+      doc.text('AI Travel Planning & Duty of Care', margin, 30);
+
+      if (mode === 'short') {
+        doc.setFontSize(14);
+        doc.setTextColor(56, 189, 248);
+        doc.text('Executive Overview', margin, 46);
+        doc.setFontSize(11);
+        doc.setTextColor(232, 238, 247);
+        const lines = [
+          'VoyaAI combines AI-based trip design and duty-of-care workflows.',
+          'It creates day-by-day travel plans, accommodation guidance, cost estimates,',
+          'packing lists and local alerts for travellers.',
+          '',
+          'For organisations, the platform adds risk briefings, emergency contacts,',
+          'approval workflows and offline documentation for better operational control.',
+          '',
+          'Potential revenue models include enterprise licensing, white-label deployments',
+          'and premium travel-service add-ons for selected sectors.'
+        ];
+        let y = 58;
+        lines.forEach(line => {
+          doc.text(line, margin, y);
+          y += 8;
+        });
+      } else {
+        doc.setFontSize(14);
+        doc.setTextColor(56, 189, 248);
+        doc.text('Concept Summary', margin, 46);
+        doc.setFontSize(11);
+        doc.setTextColor(232, 238, 247);
+        const lines = [
+          '1. Product concept: AI travel planning + duty-of-care platform.',
+          '2. Core value: one workflow for planning, budget and safety.',
+          '3. Main users: HR, travel managers, compliance teams and travellers.',
+          '4. Key outputs: itinerary, accommodation, packing list, risk briefing, offline dossier.',
+          '5. Core revenue: licensing, white-label deployment and premium add-ons.',
+          '6. Strategic positioning: EU-based, self-hostable and privacy-aware.',
+          '7. Risk: market saturation and operational complexity, offset by strong differentiation.',
+          '8. Target market: global companies with international travel operations.'
+        ];
+        let y = 58;
+        lines.forEach(line => {
+          doc.text(line, margin, y);
+          y += 10;
+        });
+      }
+
+      doc.setTextColor(245, 158, 11);
+      doc.setFontSize(10);
+      doc.text('Frankfurt am Main · EU-hosted · Self-hostable', margin, 270);
+      doc.save('voyaai-overview.pdf');
+      closePdfModal();
+    }
+
+    document.getElementById('contactForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const form = e.currentTarget;
+      const name = document.getElementById('name');
+      const email = document.getElementById('email');
+      const message = document.getElementById('message');
+      const status = document.getElementById('formStatus');
+      let valid = true;
+
+      [name, email, message].forEach(field => {
+        const wrapper = field.closest('.form-group');
+        wrapper.classList.remove('has-error');
+      });
+
+      if (!name.value.trim()) {
+        name.closest('.form-group').classList.add('has-error');
+        valid = false;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) {
+        email.closest('.form-group').classList.add('has-error');
+        valid = false;
+      }
+      if (!message.value.trim()) {
+        message.closest('.form-group').classList.add('has-error');
+        valid = false;
+      }
+
+      if (!valid) {
+        status.className = 'form-status error';
+        status.textContent = 'Please complete all required fields correctly.';
+        return;
+      }
+
+      status.className = 'form-status success';
+      status.textContent = 'Your message has been prepared successfully. Please send it via WhatsApp or email for final delivery.';
+      form.reset();
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    setLang('de');
+  </script>
+</body>
+</html>
